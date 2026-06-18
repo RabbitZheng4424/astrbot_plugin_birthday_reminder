@@ -1,0 +1,155 @@
+:root {
+  --bg: #f7f8fb;
+  --card: #ffffff;
+  --border: #e4e7ef;
+  --text: #202431;
+  --muted: #6a7285;
+  --primary: #5478ff;
+  --danger: #db4b4b;
+}
+
+[data-theme="dark"] {
+  --bg: #151821;
+  --card: #1d2230;
+  --border: #2c3448;
+  --text: #eef2ff;
+  --muted: #a5aec4;
+  --primary: #7ea1ff;
+  --danger: #ff8080;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.page {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: grid;
+  gap: 20px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.hero h1,
+.card h2,
+.month-block h3 {
+  margin-top: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+button.danger {
+  background: var(--danger);
+}
+
+form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+label {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+textarea {
+  resize: vertical;
+}
+
+#status {
+  white-space: pre-wrap;
+  margin: 0;
+  color: var(--muted);
+}
+
+#status[data-error="true"] {
+  color: var(--danger);
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.list {
+  display: grid;
+  gap: 16px;
+}
+
+.month-block ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.birthday-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.meta {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.empty {
+  color: var(--muted);
+}

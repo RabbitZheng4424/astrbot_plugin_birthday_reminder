@@ -1,0 +1,9 @@
+{
+  "pages": {
+    "birthdays": {
+      "title": "生日列表",
+      "description": "手动管理和查看生日记录。",
+      "heading": "生日列表"
+    }
+  }
+}

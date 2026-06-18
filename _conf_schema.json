@@ -1,0 +1,42 @@
+{
+  "birthday_proactive_enabled": {
+    "description": "是否开启每天定时生日提醒。",
+    "type": "bool",
+    "default": true
+  },
+  "birthday_proactive_time": {
+    "description": "生日提醒发送时间，格式为 HH:MM。",
+    "type": "string",
+    "default": "08:00"
+  },
+  "birthday_remind_offsets": {
+    "description": "重复提醒的天数偏移列表，0 代表当天提醒。",
+    "type": "list",
+    "default": [7, 1, 0]
+  },
+  "birthday_proactive_session": {
+    "description": "主动提醒目标会话 unified_msg_origin，留空则自动使用最近管理员会话。",
+    "type": "string",
+    "default": ""
+  },
+  "birthday_template": {
+    "description": "生日提醒模板，可使用 {name} {days} {birthday} {calendar_label}。",
+    "type": "string",
+    "default": "提醒一下，{name}{calendar_label} 还有 {days} 天过生日，对应公历日期是 {birthday}。"
+  },
+  "birthday_today_template": {
+    "description": "当天生日提醒模板，可使用 {name} {birthday} {calendar_label}。",
+    "type": "string",
+    "default": "今天是 {name}{calendar_label} 的生日，对应公历日期是 {birthday}。"
+  },
+  "enable_natural_language_commands": {
+    "description": "是否开启自然语言添加、删除和查看生日列表。",
+    "type": "bool",
+    "default": true
+  },
+  "admin_only_operations": {
+    "description": "是否仅允许管理员执行生日列表读写操作。",
+    "type": "bool",
+    "default": true
+  }
+}

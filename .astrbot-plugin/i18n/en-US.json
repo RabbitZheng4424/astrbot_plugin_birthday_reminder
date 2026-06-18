@@ -1,0 +1,9 @@
+{
+  "pages": {
+    "birthdays": {
+      "title": "Birthdays",
+      "description": "Manage birthday records manually.",
+      "heading": "Birthdays"
+    }
+  }
+}

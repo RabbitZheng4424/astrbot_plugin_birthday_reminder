@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>生日列表</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero card">
+        <h1>生日列表</h1>
+        <p>支持手动添加、查看、删除生日记录，按 1 月到 12 月排序。</p>
+        <div class="actions">
+          <button id="refresh-list">刷新列表</button>
+          <button id="refresh-solar">刷新下一次公历生日</button>
+        </div>
+        <pre id="status"></pre>
+      </section>
+
+      <section class="card form-card">
+        <h2>手动添加</h2>
+        <form id="birthday-form">
+          <label>
+            名字
+            <input id="name" name="name" placeholder="例如：雨林" required />
+          </label>
+          <label>
+            生日
+            <input id="birthday" name="birthday" placeholder="例如：10月22日 / 2001-10-22 / 农历八月十五" required />
+          </label>
+          <label>
+            历法
+            <select id="calendar-type" name="calendar_type">
+              <option value="solar">阳历 / 公历</option>
+              <option value="lunar_nong">农历</option>
+              <option value="lunar_yin">阴历</option>
+            </select>
+          </label>
+          <label>
+            别名
+            <input id="aliases" name="aliases" placeholder="多个别名用逗号分隔" />
+          </label>
+          <label>
+            备注
+            <textarea id="note" name="note" rows="3" placeholder="可选"></textarea>
+          </label>
+          <button type="submit">保存生日</button>
+        </form>
+      </section>
+
+      <section class="card list-card">
+        <div class="section-head">
+          <h2>全部生日</h2>
+          <span id="version"></span>
+        </div>
+        <div id="birthday-list" class="list"></div>
+      </section>
+    </main>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
