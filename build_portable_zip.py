@@ -9,6 +9,7 @@ from pathlib import Path
 
 PLUGIN_DIR = Path(__file__).resolve().parent
 IGNORED_PARTS = {"__pycache__", ".git", ".pytest_cache", ".ruff_cache", ".venv", "venv"}
+EXCLUDED_FILES = {".gitignore", "README.md", "CHANGELOG.md", "build_portable_zip.py"}
 
 
 def load_plugin_version() -> str:
@@ -31,6 +32,8 @@ OUTPUT_PATH = PLUGIN_DIR.parent / OUTPUT_NAME
 def should_include(path: Path) -> bool:
     parts = set(path.parts)
     if parts & IGNORED_PARTS:
+        return False
+    if path.name in EXCLUDED_FILES:
         return False
     return path.is_file()
 
