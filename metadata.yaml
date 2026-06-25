@@ -1,8 +1,8 @@
-name: astrbot_plugin_birthday_reminder
+﻿name: astrbot_plugin_birthday_reminder
 display_name: 生日提醒助手
 desc: 独立管理生日列表，支持自然语言增删、农历生日和定时主动提醒的 AstrBot 插件
 short_desc: 独立生日提醒与列表管理插件
-author: qiongqiong
+author: 瑞贝特
 repo: "https://github.com/RabbitZheng4424/astrbot_plugin_birthday_reminder"
 version: 0.1.0
 astrbot_version: ">=4.15"
@@ -27,3 +27,4 @@ support_platforms:
   - line
   - matrix
   - mattermost
+

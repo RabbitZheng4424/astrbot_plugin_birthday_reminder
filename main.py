@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import asyncio
 import re
@@ -34,7 +34,7 @@ PLUGIN_VERSION = _load_plugin_version()
 
 @register(
     PLUGIN_NAME,
-    "qiongqiong",
+    "瑞贝特",
     "独立管理生日列表，支持自然语言增删、农历生日和定时主动提醒的 AstrBot 插件",
     PLUGIN_VERSION,
 )
@@ -381,3 +381,4 @@ class BirthdayReminderPlugin(Star):
         if intent.intent == "birthday_lookup":
             yield event.plain_result(self.birthday_service.get_birthday_text(intent.payload))
             event.stop_event()
+
