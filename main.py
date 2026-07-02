@@ -256,10 +256,14 @@ class BirthdayReminderPlugin(Star):
         if len(parts) < 3:
             return session_umo
         type_aliases = {
-            "私聊": "private",
-            "好友": "private",
-            "群聊": "group",
-            "群": "group",
+            "私聊": "FriendMessage",
+            "好友": "FriendMessage",
+            "private": "FriendMessage",
+            "friend": "FriendMessage",
+            "direct": "FriendMessage",
+            "群聊": "GroupMessage",
+            "群": "GroupMessage",
+            "group": "GroupMessage",
         }
         parts[1] = type_aliases.get(parts[1], parts[1])
         return ":".join(parts)

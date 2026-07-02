@@ -35,6 +35,7 @@
 ### 修复
 
 - 修复生日主动提醒直接保存中文会话类型 `私聊/群聊` 时，AstrBot 无法正确解析 UMO 的问题；现在会统一规范成 `private/group`，减少微信等平台主动提醒发送失败。
+- 修正主动提醒 UMO 的最终枚举值映射；AstrBot v4.26.2 需要的是 `FriendMessage/GroupMessage`，不是 `private/group`。现在会同时兼容中文旧值和我前一轮写入的 `private/group`。
 
 ### 后续写法约定
 
