@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import asyncio
 import re
@@ -240,10 +240,29 @@ class BirthdayReminderPlugin(Star):
         return hour, minute
 
     def _resolve_target_session(self, state: dict) -> str:
-        explicit = str(self.config.get("birthday_proactive_session", "")).strip()
+        explicit = self._normalize_proactive_session_umo(
+            str(self.config.get("birthday_proactive_session", "")).strip()
+        )
         if explicit:
             return explicit
-        return str(state.get("latest_admin_umo", "")).strip()
+        return self._normalize_proactive_session_umo(str(state.get("latest_admin_umo", "")).strip())
+
+    def _normalize_proactive_session_umo(self, session_umo: str) -> str:
+        """把旧配置里的中文会话类型规范成 AstrBot 可识别的英文值。"""
+
+        if not session_umo:
+            return ""
+        parts = session_umo.split(":")
+        if len(parts) < 3:
+            return session_umo
+        type_aliases = {
+            "私聊": "private",
+            "好友": "private",
+            "群聊": "group",
+            "群": "group",
+        }
+        parts[1] = type_aliases.get(parts[1], parts[1])
+        return ":".join(parts)
 
     def _deny_if_not_admin(self, event: AstrMessageEvent) -> str | None:
         if not bool(self.config.get("admin_only_operations", True)):
@@ -345,7 +364,9 @@ class BirthdayReminderPlugin(Star):
     async def remember_latest_admin_session(self, event: AstrMessageEvent):
         if not event.is_admin():
             return
-        umo = str(getattr(event, "unified_msg_origin", "") or "").strip()
+        umo = self._normalize_proactive_session_umo(
+            str(getattr(event, "unified_msg_origin", "") or "").strip()
+        )
         if not umo:
             return
         state = self.birthday_service.get_runtime_state()
