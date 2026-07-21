@@ -203,11 +203,23 @@ class BirthdayReminderPlugin(Star):
 
         lines = [item.message for item in due_reminders]
         try:
-            await self.context.send_message(target_session, MessageChain().message("\n".join(lines)))
+            sent = await self.context.send_message(
+                target_session,
+                MessageChain().message("\n".join(lines)),
+            )
         except Exception as exc:  # pragma: no cover
             state["birthday_pending_date"] = today_text
             self.birthday_service.save_runtime_state(state)
             logger.warning("[BirthdayReminder] 主动发送生日提醒失败: %s", exc)
+            return False
+
+        if not sent:
+            state["birthday_pending_date"] = today_text
+            self.birthday_service.save_runtime_state(state)
+            logger.warning(
+                "[BirthdayReminder] 未找到目标会话对应的平台，提醒将在稍后重试: %s",
+                target_session,
+            )
             return False
 
         state["birthday_last_sent_date"] = today_text
@@ -235,8 +247,14 @@ class BirthdayReminderPlugin(Star):
         match = re.match(r"^(?P<hour>\d{1,2}):(?P<minute>\d{1,2})$", raw)
         if not match:
             return 8, 0
-        hour = max(0, min(23, int(match.group("hour"))))
-        minute = max(0, min(59, int(match.group("minute"))))
+        hour = int(match.group("hour"))
+        minute = int(match.group("minute"))
+        if not 0 <= hour <= 23 or not 0 <= minute <= 59:
+            logger.warning(
+                "[BirthdayReminder] 提醒时间 %r 无效，已回退到 08:00。",
+                raw,
+            )
+            return 8, 0
         return hour, minute
 
     def _resolve_target_session(self, state: dict) -> str:
@@ -252,7 +270,7 @@ class BirthdayReminderPlugin(Star):
 
         if not session_umo:
             return ""
-        parts = session_umo.split(":")
+        parts = session_umo.split(":", 2)
         if len(parts) < 3:
             return session_umo
         type_aliases = {

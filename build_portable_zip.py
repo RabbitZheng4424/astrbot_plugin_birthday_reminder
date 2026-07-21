@@ -8,8 +8,8 @@ from pathlib import Path
 
 
 PLUGIN_DIR = Path(__file__).resolve().parent
-IGNORED_PARTS = {"__pycache__", ".git", ".pytest_cache", ".ruff_cache", ".venv", "venv"}
-EXCLUDED_FILES = {".gitignore", "README.md", "CHANGELOG.md", "build_portable_zip.py"}
+IGNORED_PARTS = {"__pycache__", ".git", ".pytest_cache", ".ruff_cache", ".venv", "venv", "tests", "data"}
+EXCLUDED_FILES = {".gitignore", "build_portable_zip.py"}
 
 
 def load_plugin_version() -> str:

@@ -1,4 +1,4 @@
-# 生日提醒助手
+﻿# 生日提醒助手
 
 用来单独管理生日列表、处理生日提醒，并支持自然语言增删生日信息。
 
@@ -42,6 +42,13 @@
 - `看看生日列表`
 - `天涯的生日是几月几日`
 
+## 故障排查
+
+- 安装成功后，AstrBot 的 `data/plugins/` 下应存在 `astrbot_plugin_birthday_reminder` 目录。
+- 若插件未出现，请确认上传的是构建脚本生成的 ZIP，并检查 AstrBot 日志中的插件加载异常。
+- 若主动提醒未发送，先让管理员在目标会话中发送一条消息，或手动填写完整的 `birthday_proactive_session`。
+- 可执行 `/birthday remind-now` 立即检查当天提醒；发送失败时不会被误记为已发送，后台会继续重试。
+- 生日 JSON 损坏时，插件会在原目录生成 `*.corrupt_时间戳.json` 备份，再使用空数据启动。
 ## 数据存储
 
 插件运行后的数据默认保存在下面两个文件中：
@@ -59,4 +66,4 @@ python build_portable_zip.py
 
 默认会生成类似下面的安装包：
 
-- `astrbot_plugin_birthday_reminder_0.1.0_server_flat_portable.zip`
+- `astrbot_plugin_birthday_reminder_0.2.0_server_flat_portable.zip`

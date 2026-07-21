@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 import uuid
 from dataclasses import asdict
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from typing import Any
 
 from lunardate import LunarDate
@@ -78,7 +78,14 @@ class BirthdayService:
         self.storage = storage or BirthdayStorage()
 
     def list_entries(self, refresh: bool = True) -> list[BirthdayEntry]:
-        entries = [BirthdayEntry(**item) for item in self.storage.load_birthdays()]
+        entries: list[BirthdayEntry] = []
+        for item in self.storage.load_birthdays():
+            try:
+                entry = BirthdayEntry(**item)
+            except (TypeError, ValueError):
+                continue
+            if self._is_valid_entry(entry):
+                entries.append(entry)
         if refresh:
             entries = self._refresh_entries(entries)
         entries.sort(key=lambda item: (item.birth_month, item.birth_day, item.name.lower()))
@@ -289,19 +296,24 @@ class BirthdayService:
 
     def _resolve_next_birthday(self, entry: BirthdayEntry, today: date) -> date | None:
         if entry.is_lunar:
-            current = self._resolve_lunar_birthday(today.year, entry.birth_month, entry.birth_day)
-            if current is None:
-                return None
-            if today > current + timedelta(days=1):
-                return self._resolve_lunar_birthday(today.year + 1, entry.birth_month, entry.birth_day)
-            if today <= current:
-                return current
-            return self._resolve_lunar_birthday(today.year + 1, entry.birth_month, entry.birth_day)
-        try:
-            current = date(today.year, entry.birth_month, entry.birth_day)
-            return current if current >= today else date(today.year + 1, entry.birth_month, entry.birth_day)
-        except ValueError:
+            for year in range(today.year, today.year + 3):
+                candidate = self._resolve_lunar_birthday(
+                    year,
+                    entry.birth_month,
+                    entry.birth_day,
+                )
+                if candidate is not None and candidate >= today:
+                    return candidate
             return None
+
+        for year in range(today.year, today.year + 9):
+            try:
+                candidate = date(year, entry.birth_month, entry.birth_day)
+            except ValueError:
+                continue
+            if candidate >= today:
+                return candidate
+        return None
 
     def _resolve_lunar_birthday(self, year: int, month: int, day: int) -> date | None:
         try:
@@ -310,30 +322,24 @@ class BirthdayService:
             return None
 
     def _render_message(self, entry: BirthdayEntry, days_before: int, target_birthday: date) -> str:
-        if days_before == 0:
-            template = str(
-                self.config.get(
-                    "birthday_today_template",
-                    "今天是 {name}{calendar_label} 的生日，对应公历日期是 {birthday}。",
-                )
-            )
-            return template.format(
-                name=entry.name,
-                birthday=target_birthday.isoformat(),
-                calendar_label=entry.calendar_label,
-            )
-        template = str(
-            self.config.get(
-                "birthday_template",
-                "提醒一下，{name}{calendar_label} 还有 {days} 天过生日，对应公历日期是 {birthday}。",
-            )
+        default_today = "今天是 {name}{calendar_label} 的生日，对应公历日期是 {birthday}。"
+        default_upcoming = (
+            "提醒一下，{name}{calendar_label} 还有 {days} 天过生日，"
+            "对应公历日期是 {birthday}。"
         )
-        return template.format(
-            name=entry.name,
-            days=days_before,
-            birthday=target_birthday.isoformat(),
-            calendar_label=entry.calendar_label,
-        )
+        config_key = "birthday_today_template" if days_before == 0 else "birthday_template"
+        default_template = default_today if days_before == 0 else default_upcoming
+        template = str(self.config.get(config_key, default_template))
+        values = {
+            "name": entry.name,
+            "days": days_before,
+            "birthday": target_birthday.isoformat(),
+            "calendar_label": entry.calendar_label,
+        }
+        try:
+            return template.format(**values)
+        except (KeyError, ValueError, IndexError):
+            return default_template.format(**values)
 
     def _get_offsets(self) -> list[int]:
         raw = self.config.get("birthday_remind_offsets", [7, 1, 0])
@@ -426,10 +432,12 @@ class BirthdayService:
         parsed = self._parse_birthday_text(birthday_text, calendar_hint=calendar_hint)
         if parsed is None:
             return None
-        now_text = datetime.now().isoformat(timespec="seconds")
-        return BirthdayEntry(
+        normalized_name = name.strip()
+        if not normalized_name:
+            return None
+        candidate = BirthdayEntry(
             id=uuid.uuid4().hex,
-            name=name.strip(),
+            name=normalized_name,
             birth_year=parsed.get("birth_year"),
             birth_month=parsed["birth_month"],
             birth_day=parsed["birth_day"],
@@ -437,9 +445,10 @@ class BirthdayService:
             aliases=aliases or [],
             note=note.strip(),
             next_birthday_solar="",
-            created_at=now_text,
-            updated_at=now_text,
+            created_at="",
+            updated_at="",
         )
+        return candidate if self._is_valid_entry(candidate) else None
 
     def _parse_birthday_text(self, text: str, calendar_hint: str = "") -> dict[str, Any] | None:
         raw = (text or "").strip()
@@ -503,12 +512,27 @@ class BirthdayService:
         }
 
     def _normalize_calendar_type(self, text: str) -> str:
-        lowered = str(text or "").lower()
-        if "阴历" in lowered:
+        lowered = str(text or "").strip().lower()
+        if lowered in {"lunar_yin", "阴历"} or "阴历" in lowered:
             return "lunar_yin"
-        if "农历" in lowered:
+        if lowered in {"lunar_nong", "lunar", "农历"} or "农历" in lowered:
             return "lunar_nong"
         return "solar"
+
+    def _is_valid_entry(self, entry: BirthdayEntry) -> bool:
+        if not entry.id or not entry.name.strip():
+            return False
+        if entry.calendar_type not in {"solar", "lunar_yin", "lunar_nong"}:
+            return False
+        if not 1 <= entry.birth_month <= 12:
+            return False
+        if entry.is_lunar:
+            return 1 <= entry.birth_day <= 30
+        try:
+            date(entry.birth_year or 2000, entry.birth_month, entry.birth_day)
+        except ValueError:
+            return False
+        return True
 
     def _parse_lunar_number(self, token: str, *, is_day: bool) -> int | None:
         token = str(token or "").strip()
